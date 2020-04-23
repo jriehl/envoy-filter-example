@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+package mysample;
+
+import "validate/validate.proto";
+
+message MyDecoder {
+    string mykey = 1 [(validate.rules).string.min_bytes = 1];
+    string myval = 2 [(validate.rules).string.min_bytes = 1];
+}
