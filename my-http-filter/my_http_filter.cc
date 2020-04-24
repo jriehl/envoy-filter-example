@@ -7,42 +7,37 @@
 namespace Envoy {
 namespace Http {
 
-HttpSampleDecoderFilterConfig::HttpSampleDecoderFilterConfig(
+HttpSampleFilterConfig::HttpSampleFilterConfig(
     const mysample::MyDecoder& proto_config)
     : key_(proto_config.mykey()), val_(proto_config.myval()) {}
 
-HttpSampleDecoderFilter::HttpSampleDecoderFilter(HttpSampleDecoderFilterConfigSharedPtr config)
+HttpSampleFilter::HttpSampleFilter(HttpSampleFilterConfigSharedPtr config)
     : config_(config) {}
 
-HttpSampleDecoderFilter::~HttpSampleDecoderFilter() {}
+HttpSampleFilter::~HttpSampleFilter() {}
 
-void HttpSampleDecoderFilter::onDestroy() {}
+void HttpSampleFilter::onDestroy() {}
 
-const LowerCaseString HttpSampleDecoderFilter::headerKey() const {
+const LowerCaseString HttpSampleFilter::headerKey() const {
   return LowerCaseString(config_->key());
 }
 
-const std::string HttpSampleDecoderFilter::headerValue() const {
+const std::string HttpSampleFilter::headerValue() const {
   return config_->val();
 }
 
-FilterHeadersStatus HttpSampleDecoderFilter::decodeHeaders(RequestHeaderMap& headers, bool) {
+FilterHeadersStatus HttpSampleFilter::decodeHeaders(RequestHeaderMap& headers, bool) {
+  ENVOY_LOG(info, "INSIDE THE DECODER EXTENSION...");
   // add a header
   headers.addCopy(headerKey(), headerValue());
 
   return FilterHeadersStatus::Continue;
 }
 
-FilterDataStatus HttpSampleDecoderFilter::decodeData(Buffer::Instance&, bool) {
-  return FilterDataStatus::Continue;
-}
-
-FilterTrailersStatus HttpSampleDecoderFilter::decodeTrailers(RequestTrailerMap&) {
-  return FilterTrailersStatus::Continue;
-}
-
-void HttpSampleDecoderFilter::setDecoderFilterCallbacks(StreamDecoderFilterCallbacks& callbacks) {
-  decoder_callbacks_ = &callbacks;
+FilterHeadersStatus HttpSampleFilter::encodeHeaders(ResponseHeaderMap& headers, bool) {
+  ENVOY_LOG(info, "INSIDE THE ENCODER EXTENSION...");
+  headers.addCopy(headerKey(), headerValue());
+  return FilterHeadersStatus::Continue;
 }
 
 } // namespace Http

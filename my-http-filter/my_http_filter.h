@@ -6,12 +6,14 @@
 
 #include "my-http-filter/my_http_filter.pb.h"
 
+#include "extensions/filters/http/common/pass_through_filter.h"
+
 namespace Envoy {
 namespace Http {
 
-class HttpSampleDecoderFilterConfig {
+class HttpSampleFilterConfig {
 public:
-  HttpSampleDecoderFilterConfig(const mysample::MyDecoder& proto_config);
+  HttpSampleFilterConfig(const mysample::MyDecoder& proto_config);
 
   const std::string& key() const { return key_; }
   const std::string& val() const { return val_; }
@@ -21,25 +23,24 @@ private:
   const std::string val_;
 };
 
-typedef std::shared_ptr<HttpSampleDecoderFilterConfig> HttpSampleDecoderFilterConfigSharedPtr;
+typedef std::shared_ptr<HttpSampleFilterConfig> HttpSampleFilterConfigSharedPtr;
 
-class HttpSampleDecoderFilter : public StreamDecoderFilter {
+class HttpSampleFilter : public PassThroughFilter, public Logger::Loggable<Logger::Id::filter> {
 public:
-  HttpSampleDecoderFilter(HttpSampleDecoderFilterConfigSharedPtr);
-  ~HttpSampleDecoderFilter();
+  HttpSampleFilter(HttpSampleFilterConfigSharedPtr);
+  ~HttpSampleFilter();
 
   // Http::StreamFilterBase
   void onDestroy() override;
 
   // Http::StreamDecoderFilter
   FilterHeadersStatus decodeHeaders(RequestHeaderMap&, bool) override;
-  FilterDataStatus decodeData(Buffer::Instance&, bool) override;
-  FilterTrailersStatus decodeTrailers(RequestTrailerMap&) override;
-  void setDecoderFilterCallbacks(StreamDecoderFilterCallbacks&) override;
+
+  // Http::StreamEncoderFilter
+  FilterHeadersStatus encodeHeaders(ResponseHeaderMap&, bool) override;
 
 private:
-  const HttpSampleDecoderFilterConfigSharedPtr config_;
-  StreamDecoderFilterCallbacks* decoder_callbacks_;
+  const HttpSampleFilterConfigSharedPtr config_;
 
   const LowerCaseString headerKey() const;
   const std::string headerValue() const;

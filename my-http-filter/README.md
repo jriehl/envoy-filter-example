@@ -7,6 +7,6 @@ To build the Envoy static binary:
 
 ## Testing
 
-To run the `sample` integration test:
+To run the `mysample` integration test:
 
 `bazel test //my-http-filter-example:my_http_filter_integration_test`

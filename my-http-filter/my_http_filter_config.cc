@@ -10,7 +10,7 @@ namespace Envoy {
 namespace Server {
 namespace Configuration {
 
-class HttpSampleDecoderFilterConfig : public NamedHttpFilterConfigFactory {
+class HttpSampleFilterConfig : public NamedHttpFilterConfigFactory {
 public:
   Http::FilterFactoryCb createFilterFactoryFromProto(const Protobuf::Message& proto_config,
                                                      const std::string&,
@@ -32,13 +32,13 @@ public:
 
 private:
   Http::FilterFactoryCb createFilter(const mysample::MyDecoder& proto_config, FactoryContext&) {
-    Http::HttpSampleDecoderFilterConfigSharedPtr config =
-        std::make_shared<Http::HttpSampleDecoderFilterConfig>(
-            Http::HttpSampleDecoderFilterConfig(proto_config));
+    Http::HttpSampleFilterConfigSharedPtr config =
+        std::make_shared<Http::HttpSampleFilterConfig>(
+            Http::HttpSampleFilterConfig(proto_config));
 
     return [config](Http::FilterChainFactoryCallbacks& callbacks) -> void {
-      auto filter = new Http::HttpSampleDecoderFilter(config);
-      callbacks.addStreamDecoderFilter(Http::StreamDecoderFilterSharedPtr{filter});
+      auto filter = new Http::HttpSampleFilter(config);
+      callbacks.addStreamFilter(Http::StreamFilterSharedPtr{filter});
     };
   }
 };
@@ -46,7 +46,7 @@ private:
 /**
  * Static registration for this sample filter. @see RegisterFactory.
  */
-static Registry::RegisterFactory<HttpSampleDecoderFilterConfig, NamedHttpFilterConfigFactory>
+static Registry::RegisterFactory<HttpSampleFilterConfig, NamedHttpFilterConfigFactory>
     register_;
 
 } // namespace Configuration

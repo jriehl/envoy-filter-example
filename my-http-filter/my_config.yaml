@@ -27,7 +27,7 @@ static_resources:
             - name: mysample
               config:
                 mykey: x-idunno
-                myval: "truish"
+                myval: truish
             - name: envoy.filters.http.router
     clusters:
     - name: some_service
