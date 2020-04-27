@@ -4,7 +4,7 @@ https://github.com/sarvij10/envoy-filter-example/tree/modify_response/myfilters/
 Manual demo and test procedure:
 * Start up some containers in Docker:
     - `docker run -d -p 8088:80 nginx:latest`
-    - `docker run -d -p 9411:9411 -p 16686:16686 jaegertracing/all-in-one`
+    - `docker run -d -e COLLECTOR_ZIPKIN_HTTP_PORT=9411 -p 9411:9411 -p 16686:16686 jaegertracing/all-in-one`
 * Build and run custom Envoy:
     - `bazel build //data-trace-logger:envoy`
     - `bazel-bin/data-trace-loggger/envoy -c data-trace-logger/data_trace_logger.yaml`
