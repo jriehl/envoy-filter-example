@@ -14,14 +14,26 @@ class DataTraceLogger : public PassThroughFilter, public Logger::Loggable<Logger
 public:
     FilterDataStatus decodeData(Buffer::Instance& data, bool end_stream) {
         if (!end_stream) {
-            ENVOY_LOG(info, "decodeData(): {}", data.toString());
+            auto& active_span = decoder_callbacks_->activeSpan();
+            auto data_str = data.toString();
+            /*  The current Zipkin trace reporter ignores logs.  I can verify the
+                log message is being stored in the span, and that the serializer
+                ignores log "annotations" completely.  So functionally, the
+                following line does nothing. */
+            active_span.log(std::chrono::system_clock::now(), "decodedData");
+            active_span.setTag("request_data", data_str);
+            ENVOY_LOG(debug, "decodeData(): {}", data_str);
         }
         return FilterDataStatus::Continue;
     }
 
     FilterDataStatus encodeData(Buffer::Instance& data, bool end_stream) {
         if (!end_stream) {
-            ENVOY_LOG(info, "encodeData(): {}", data.toString());
+            auto& active_span = encoder_callbacks_->activeSpan();
+            auto data_str = data.toString();
+            active_span.log(std::chrono::system_clock::now(), "encodedData");
+            active_span.setTag("response_data", data_str);
+            ENVOY_LOG(debug, "encodeData(): {}", data_str);
         }
         return FilterDataStatus::Continue;
     }
